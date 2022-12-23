@@ -1,9 +1,6 @@
 import { MenuIcon } from "@heroicons/react/solid";
-import Link from "next/link";
 import { useState } from "react";
-import AuthButton from "./authButton";
 import Menu from "./menu";
-import PrimaryButton from "./primaryButton";
 
 interface NavProps {
   hideGiveSnaps?: boolean;
@@ -18,9 +15,6 @@ const Nav = ({ hideGiveSnaps }: NavProps) => {
           <a onClick={() => setShowMenu(true)}>
             <MenuIcon className="h-8 w-8" />
           </a>
-        </div>
-        <div className="flex w-auto">
-          <AuthButton />
         </div>
       </div>
       <Menu open={showMenu} onClose={() => setShowMenu(false)} />
