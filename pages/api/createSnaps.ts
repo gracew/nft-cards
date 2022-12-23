@@ -1,15 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { AuthType } from '../../auth';
 import { definitions } from "../../types/supabase";
-import { runMiddleware, validateJwt } from './middleware';
 import { supabase } from './supabase';
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-
-  await runMiddleware(req, res, validateJwt);
 
   const recipientInfo: Partial<definitions["snaps"]> = req.body.recipientType === AuthType.EMAIL
     ? { recipient_fname: req.body.recipientName }

@@ -1,9 +1,6 @@
 import sendgrid from '@sendgrid/mail';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { AuthType } from '../../auth';
 import { definitions } from "../../types/supabase";
-import { runMiddleware, validateJwt } from './middleware';
-import { mint } from './mint';
 import { supabase } from './supabase';
 
 sendgrid.setApiKey(process.env.SENDGRID_API_KEY!);
@@ -41,7 +38,6 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  await runMiddleware(req, res, validateJwt);
   const { id, note } = req.body;
   const { data, error } = await supabase
     .from<definitions["snaps"]>("snaps")
@@ -53,10 +49,10 @@ export default async function handler(
   }
   const snaps = data[0];
 
-  if (snaps.recipient_type === AuthType.EMAIL) {
+  /*if (snaps.recipient_type === AuthType.EMAIL) {
     await sendEmail(snaps.id);
   } else {
     await mint(snaps.id);
-  }
+  }*/
   res.status(200).end();
 }

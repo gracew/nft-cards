@@ -3,7 +3,6 @@ import { create as ipfsHttpClient } from "ipfs-http-client";
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { resolveCategory } from "../../category";
 import ERC721NFT from "../../ERC721NFT.json";
-import { Category } from "../give/[id]/category";
 import { runMiddleware, validateJwt } from "./middleware";
 import { supabase } from "./supabase";
 
@@ -32,18 +31,6 @@ async function getRecipientWalletAddress(snaps: any) {
     return undefined;
   }
   return data;
-}
-
-function prefixedLabel(category: Category) {
-  if (category.id.startsWith("iwd")) {
-   return `IWD 2022: ${category.label}`;
-  }
-
-  if (category.id.startsWith("earth")) {
-   return `Earth Day 2022: ${category.label}`;
-  }
-
-  return category.label;
 }
 
 export async function mint(id: string) {
