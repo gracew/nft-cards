@@ -11,7 +11,7 @@ import { supabase } from "./supabase";
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
 const INFURA_ID = "a71874bbcb6a450398f24a7bbd436eda";
-const provider = new ethers.providers.InfuraProvider(process.env.NEXT_PUBLIC_NETWORK || "maticmum", INFURA_ID)
+const provider = new ethers.providers.InfuraProvider(process.env.NEXT_PUBLIC_NETWORK || "goerli", INFURA_ID)
 const mainnetProvider = new ethers.providers.InfuraProvider("homestead", INFURA_ID);
 const signer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
 const contract = new ethers.Contract(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!, ERC721NFT.abi, signer);
