@@ -1,9 +1,7 @@
 import { ethers } from "ethers";
 import { create as ipfsHttpClient } from "ipfs-http-client";
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { resolveCategory } from "../../category";
 import ERC721NFT from "../../ERC721NFT.json";
-import { runMiddleware, validateJwt } from "./middleware";
 import { supabase } from "./supabase";
 
 // @ts-ignore
@@ -51,11 +49,6 @@ export async function mint(id: string) {
     console.log("incomplete snap");
     return;
   }
-  const category = await resolveCategory(snaps.category);
-  if (!category) {
-    console.log("unknown category: " + snaps.category);
-    return;
-  }
 
   const recipientAddress = await getRecipientWalletAddress(snaps);
   if (!recipientAddress) {
@@ -67,11 +60,11 @@ export async function mint(id: string) {
     ? await resolveAddress(snaps.sender_wallet_address)
     : snaps.sender_fname;
   const metadata: Record<string, string> = {
-    name: prefixedLabel(category!),
+    //name: TODO fill in
     description: `${snaps.note}
 
 From: ${sender}`,
-    image: category.video_url || category.image_url,
+    //image: TODO hardcode
   };
   const metadataResult = await client.add(JSON.stringify(metadata));
   const url = `https://ipfs.infura.io/ipfs/${metadataResult.path}`;
@@ -112,7 +105,6 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  await runMiddleware(req, res, validateJwt);
   const snaps = await mint(req.body.id);
   if (!snaps) {
     res.status(500).end();

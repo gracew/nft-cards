@@ -1,6 +1,9 @@
 import { ethers } from "ethers";
 import { useEffect, useState } from 'react';
 
+const INFURA_ID = "a71874bbcb6a450398f24a7bbd436eda";
+export const MAINNET_PROVIDER = new ethers.providers.InfuraProvider("homestead", INFURA_ID);
+
 interface SnapsRecipientProps {
   existingData?: any;
 }
@@ -19,7 +22,7 @@ const SnapsRecipient = ({ existingData }: SnapsRecipientProps) => {
         } else {
           const resolved = await MAINNET_PROVIDER.resolveName(recipientAddress);
           if (resolved) {
-            setResolvedAddress(resolved);
+            //setResolvedAddress(resolved);
             setValidAddress(true);
           } else {
             setValidAddress(false);

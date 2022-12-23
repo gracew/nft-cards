@@ -1,7 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { XIcon } from '@heroicons/react/outline';
-import { Fragment, ReactNode, useContext } from 'react';
-import { UserContext } from '../pages/_app';
+import { Fragment, ReactNode } from 'react';
 import { definitions } from '../types/supabase';
 
 interface MintPanelProps {
@@ -12,8 +11,6 @@ interface MintPanelProps {
 }
 
 export default function MintPanel({ snaps, open, onClose, children }: MintPanelProps) {
-  const [me, setMe] = useContext(UserContext);
-
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog as="div" className="fixed inset-0 overflow-hidden" onClose={onClose}>

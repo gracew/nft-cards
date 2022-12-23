@@ -1,13 +1,44 @@
+import sendgrid from '@sendgrid/mail';
 import formidable from "formidable";
 import fs from "fs";
 import { create as ipfsHttpClient } from "ipfs-http-client";
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { definitions } from "../../types/supabase";
-import { sendEmail } from "./completeSnaps";
 import { supabase } from './supabase';
 
 // @ts-ignore
 const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
+
+sendgrid.setApiKey(process.env.SENDGRID_API_KEY!);
+
+export async function sendEmail(snapsId: string) {
+  const host = process.env.NEXT_PUBLIC_HOST || "http://localhost:3000";
+  const emailRes = await supabase
+    .from<definitions["recipient_emails"]>("recipient_emails")
+    .select("*")
+    .eq('snaps_id', snapsId);
+  if (emailRes.error || !emailRes.data || emailRes.data.length === 0) {
+    console.error("could not notify recipient");
+    return;
+  }
+  const msg = {
+    templateId: "d-5aff4fd54154455c8afddef351c648d9",
+    from: {
+      name: "GiveSnaps",
+      email: "hello@givesnaps.xyz",
+    },
+    personalizations: [
+      {
+        to: emailRes.data[0].recipient_email,
+      }
+    ],
+    dynamicTemplateData: {
+      snaps_url: `${host}/snaps/${snapsId}`,
+    }
+  }
+  // TODO(gracew): make this idempotent
+  await sendgrid.send(msg);
+}
 
 
 // don't process the body - formidable will handle that
@@ -35,30 +66,13 @@ export default async function handler(
       label,
       image_url: `https://ipfs.infura.io/ipfs/${imageResult.path}`,
     }
-    if ("video" in files) {
-      const videoResult = await client.add(fs.createReadStream((files["video"] as any).filepath));
-      data["video_url"] = `https://ipfs.infura.io/ipfs/${videoResult.path}`;
-    }
-
-    const insertCategoryRes = await supabase
-      .from("categories")
-      .insert([data]);
-
-    if (insertCategoryRes.error || !insertCategoryRes.data || insertCategoryRes.data.length === 0) {
-      res.status(500).end();
-      return;
-    }
-    const categoryId = insertCategoryRes.data[0].id;
 
     const insertSnapsRes = await supabase
       .from<definitions["snaps"]>("snaps")
       .insert([{
-        // sender_id: "36f30956-96db-40b5-a040-9ace042b44be", // test sender on staging
-        sender_id: "8581e3bd-9a1f-4ef1-a384-1306df1f89af",
-        recipient_type: "email",
         recipient_fname: recipientName as string,
         note: note as string,
-        category: categoryId,
+        // TODO email
       }]);
     if (insertSnapsRes.error || !insertSnapsRes.data || insertSnapsRes.data.length === 0) {
       res.status(500).end();
