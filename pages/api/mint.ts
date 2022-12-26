@@ -18,13 +18,13 @@ async function resolveAddress(address: string) {
   return resolved || address;
 }
 
-async function getRecipientWalletAddress(snaps: any) {
-  if (snaps.recipient_wallet_address) {
-    return snaps.recipient_wallet_address;
+async function getRecipientWalletAddress(card: any) {
+  if (card.recipient_wallet_address) {
+    return card.recipient_wallet_address;
   }
   // join snaps.id on recipient_emails table on users table
   const { data, error } = await supabase
-    .rpc('lookup_wallet_address_from_email', { snaps_id: snaps.id });
+    .rpc('lookup_wallet_address_from_email', { snaps_id: card.id });
   if (error || !data || data.length === 0) {
     return undefined;
   }
@@ -64,7 +64,8 @@ export async function mint(id: string) {
     description: `${snaps.note}
 
 From: ${sender}`,
-    //image: TODO hardcode
+    //image: TODO hardcode. is this the right syntax?
+    image_url: `https://ipfs.infura.io/ipfs/ID`,
   };
   const metadataResult = await client.add(JSON.stringify(metadata));
   const url = `https://ipfs.infura.io/ipfs/${metadataResult.path}`;

@@ -1,39 +1,24 @@
 import sendgrid from '@sendgrid/mail';
-import formidable from "formidable";
-import fs from "fs";
-import { create as ipfsHttpClient } from "ipfs-http-client";
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { definitions } from "../../types/supabase";
 import { supabase } from './supabase';
-
-// @ts-ignore
-const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
 sendgrid.setApiKey(process.env.SENDGRID_API_KEY!);
 
-export async function sendEmail(snapsId: string) {
+export async function sendEmail(card: any) {
   const host = process.env.NEXT_PUBLIC_HOST || "http://localhost:3000";
-  const emailRes = await supabase
-    .from<definitions["recipient_emails"]>("recipient_emails")
-    .select("*")
-    .eq('snaps_id', snapsId);
-  if (emailRes.error || !emailRes.data || emailRes.data.length === 0) {
-    console.error("could not notify recipient");
-    return;
-  }
   const msg = {
     templateId: "d-5aff4fd54154455c8afddef351c648d9",
     from: {
-      name: "GiveSnaps",
-      email: "hello@givesnaps.xyz",
+      name: "Pearl",
+      email: "gm@trypearl.xyz",
     },
     personalizations: [
       {
-        to: emailRes.data[0].recipient_email,
+        to: card.recipient_email,
       }
     ],
     dynamicTemplateData: {
-      snaps_url: `${host}/snaps/${snapsId}`,
+      snaps_url: `${host}/snaps/${card.id}`,
     }
   }
   // TODO(gracew): make this idempotent
@@ -52,50 +37,21 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  const form = formidable({ multiples: true });
-  form.parse(req, async (err, fields, files) => {
-    if (err) {
-      res.writeHead(err.httpCode || 400, { 'Content-Type': 'text/plain' });
-      res.end(String(err));
-      return;
-    }
-    const { recipientName, recipientEmail, note, label } = fields;
-
-    const imageResult = await client.add(fs.createReadStream((files["image"] as any).filepath));
-    const data: Record<string, any> = {
-      label,
-      image_url: `https://ipfs.infura.io/ipfs/${imageResult.path}`,
-    }
-
-    const insertSnapsRes = await supabase
-      .from<definitions["snaps"]>("snaps")
+    const { recipientEmail, note } = req.body;
+    const insertCardRes = await supabase
+      .from("snaps")
       .insert([{
-        recipient_fname: recipientName as string,
-        note: note as string,
-        // TODO email
+        recipient_email: recipientEmail,
+        note,
       }]);
-    if (insertSnapsRes.error || !insertSnapsRes.data || insertSnapsRes.data.length === 0) {
+    if (insertCardRes.error || !insertCardRes.data || insertCardRes.data.length === 0) {
       res.status(500).end();
       return;
     }
 
-    const snaps = insertSnapsRes.data[0];
-    // save recipient email to separate, non-public table
-    const insertEmailRes = await supabase
-      .from<definitions["recipient_emails"]>("recipient_emails")
-      .insert([{
-        snaps_id: snaps.id,
-        recipient_email: recipientEmail as string,
-      }]);
-    if (insertEmailRes.error || !insertEmailRes.data || insertEmailRes.data.length === 0) {
-      res.status(500).end();
-      return;
-    }
+    const card = insertCardRes.data[0];
 
-    await sendEmail(snaps.id);
+    await sendEmail(card);
 
-    res.status(200).json(snaps);
-    return;
-  });
-
+    res.status(200).json(card);
 }

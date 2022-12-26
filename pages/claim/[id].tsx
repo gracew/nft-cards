@@ -1,8 +1,7 @@
 import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
-import Card from '../../components/card';
+import { useEffect, useState } from 'react';
 import LargeSpinner from '../../components/largeSpinner';
 import MintPanel from '../../components/mintPanel';
 import MintPanelContents from '../../components/mintPanelContents';
@@ -13,9 +12,22 @@ import { supabase } from '../api/supabase';
 const ClaimCard: NextPage = (props: any) => {
   const router = useRouter();
   const { id } = router.query;
-  const [snaps, setSnaps] = useState<any>(props.snaps);
+  const [card, setCard] = useState<any>();
   const [showPanel, setShowPanel] = useState(false);
   const [minting, setMinting] = useState(false);
+
+  useEffect(() => {
+    supabase
+      .from("cards")
+      .select("*")
+      .eq('id', id)
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setCard(data[0]);
+        }
+      })
+
+  });
 
   async function mintNFT() {
     setMinting(true);
@@ -27,7 +39,7 @@ const ClaimCard: NextPage = (props: any) => {
       body: JSON.stringify({ id }),
     })
       .then(res => res.json())
-      .then(setSnaps)
+      .then(setCard)
       .finally(() => {
         setMinting(false);
         setShowPanel(false);
@@ -35,12 +47,12 @@ const ClaimCard: NextPage = (props: any) => {
   }
 
   function getOpenSeaUrl() {
-    return process.env.NEXT_PUBLIC_NETWORK === "matic"
-      ? `https://opensea.io/assets/matic/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}/${snaps.minted_token_id}`
-      : `https://testnets.opensea.io/assets/mumbai/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}/${snaps.minted_token_id}`
+    return process.env.NEXT_PUBLIC_NETWORK === "ethereum"
+      ? `https://opensea.io/assets/ethereum/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}/${card.minted_token_id}`
+      : `https://testnets.opensea.io/assets/goerli/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}/${card.minted_token_id}`
   }
 
-  const claimable = !snaps.minted_at;
+  const claimable = !card.minted_at;
 
   return (
     <div className="w-80 flex flex-col">
@@ -55,34 +67,26 @@ const ClaimCard: NextPage = (props: any) => {
         <meta name="twitter:image" content={props.category.image_url} />
       </Head>
 
-      {!snaps && <>
+      {!card && <>
         <div className="flex flex-col min-h-screen items-center justify-center">
           <LargeSpinner />
         </div>
       </>}
-      {snaps && <>
+      {card && <>
         <div className="mt-5 mb-3 flex justify-between">
           {/* TODO: look up ENS */}
-          <h2>From:
-            <div>
-              {snaps.sender_fname || props.sender}
-            </div>
-          </h2>
+          <h2>From: Grace & Helena at Pearl</h2>
           <h2 className="text-right">To:
             <div>
-              {snaps.recipient_fname || props.recipient}
+              {card.recipient_fname || props.recipient}
             </div>
           </h2>
         </div>
 
-        <Card
-          onClick={() => { }}
-          imageUrl={props.category.image_url}
-          videoUrl={props.category.video_url}
-          label={props.category!.label}
-          description={snaps.note!}
-          isSafari={props.isSafari}
-        />
+        <img src={props.category.image_url} alt="snaps image" />
+        <div className="p-5">
+          <p className="mb-2 font-normal">{card.note}</p>
+        </div>
 
         {claimable
           ?
@@ -101,15 +105,15 @@ const ClaimCard: NextPage = (props: any) => {
         }
 
         <MintPanel
-          snaps={snaps}
+          snaps={card}
           open={showPanel}
           onClose={() => setShowPanel(false)}
         >
-      <MintPanelContents
-        text="This won't cost you any transaction fees."
-      >
-        <PrimaryButton text="Claim as NFT" onClick={mintNFT} loading={minting} />
-      </MintPanelContents>
+          <MintPanelContents
+            text="This won't cost you any transaction fees."
+          >
+            <PrimaryButton text="Claim as NFT" onClick={mintNFT} loading={minting} />
+          </MintPanelContents>
         </MintPanel>
       </>}
     </div>
