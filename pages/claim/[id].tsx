@@ -3,9 +3,8 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import LargeSpinner from '../../components/largeSpinner';
-import MintPanel from '../../components/mintPanel';
-import MintPanelContents from '../../components/mintPanelContents';
 import PrimaryButton from '../../components/primaryButton';
+import RecipientInput from '../../components/recipientInput';
 import { shortenAddress } from '../../components/shortenedAddress';
 import { supabase } from '../api/supabase';
 
@@ -13,20 +12,12 @@ const ClaimCard: NextPage = (props: any) => {
   const router = useRouter();
   const { id } = router.query;
   const [card, setCard] = useState<any>();
-  const [showPanel, setShowPanel] = useState(false);
   const [minting, setMinting] = useState(false);
 
   useEffect(() => {
-    supabase
-      .from("cards")
-      .select("*")
-      .eq('id', id)
-      .then(({ data }) => {
-        if (data && data.length > 0) {
-          setCard(data[0]);
-        }
-      })
-
+    fetch('/api/cards/' + id)
+      .then(res => res.json())
+      .then(setCard);
   });
 
   async function mintNFT() {
@@ -42,7 +33,6 @@ const ClaimCard: NextPage = (props: any) => {
       .then(setCard)
       .finally(() => {
         setMinting(false);
-        setShowPanel(false);
       });
   }
 
@@ -52,19 +42,17 @@ const ClaimCard: NextPage = (props: any) => {
       : `https://testnets.opensea.io/assets/goerli/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}/${card.minted_token_id}`
   }
 
-  const claimable = !card.minted_at;
-
   return (
     <div className="w-80 flex flex-col">
       <Head>
         <title>A Holiday Card from Pearl</title>
         <meta name="description" content="Send shoutouts to teammates and colleagues as digital collectibles." />
-        <meta key="image" property="og:image" content={props.category.image_url} />
+        {/*<meta key="image" property="og:image" content={props.category.image_url} />*/}
 
         <meta name="twitter:title" content="A Holiday Card from Pearl" />
         <meta name="twitter:description" content="Send shoutouts to teammates and colleagues as digital collectibles." />
         <meta name="twitter:card" content="summary" />
-        <meta name="twitter:image" content={props.category.image_url} />
+        {/*<meta name="twitter:image" content={props.category.image_url} />*/}
       </Head>
 
       {!card && <>
@@ -73,28 +61,22 @@ const ClaimCard: NextPage = (props: any) => {
         </div>
       </>}
       {card && <>
-        <div className="mt-5 mb-3 flex justify-between">
-          {/* TODO: look up ENS */}
-          <h2>From: Grace & Helena at Pearl</h2>
-          <h2 className="text-right">To:
-            <div>
-              {card.recipient_fname || props.recipient}
-            </div>
-          </h2>
-        </div>
-
-        <img src={props.category.image_url} alt="snaps image" />
+        {/*<img src={props.category.image_url} alt="card image" />*/}
         <div className="p-5">
           <p className="mb-2 font-normal">{card.note}</p>
         </div>
 
-        {claimable
+        {!card.minted_at
           ?
-          <PrimaryButton
-            className="mt-3"
-            onClick={() => setShowPanel(true)}
-            text="Claim"
-          />
+          <>
+          <RecipientInput />
+            <PrimaryButton
+              className="mt-3"
+              onClick={mintNFT}
+              text="Claim"
+              loading={minting}
+            />
+          </>
           :
           <PrimaryButton
             className="mt-3"
@@ -104,17 +86,7 @@ const ClaimCard: NextPage = (props: any) => {
           />
         }
 
-        <MintPanel
-          snaps={card}
-          open={showPanel}
-          onClose={() => setShowPanel(false)}
-        >
-          <MintPanelContents
-            text="This won't cost you any transaction fees."
-          >
-            <PrimaryButton text="Claim as NFT" onClick={mintNFT} loading={minting} />
-          </MintPanelContents>
-        </MintPanel>
+        This won't cost you any transaction fees.
       </>}
     </div>
   )

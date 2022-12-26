@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MAINNET_PROVIDER } from "./snapsRecipient";
+import { MAINNET_PROVIDER } from "./recipientInput";
 
 export async function shortenAddress(address: string) {
     const resolved = await MAINNET_PROVIDER.lookupAddress(address)
