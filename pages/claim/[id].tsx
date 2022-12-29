@@ -1,14 +1,11 @@
-import type { GetServerSideProps, NextPage } from 'next';
-import Head from 'next/head';
+import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import LargeSpinner from '../../components/largeSpinner';
 import PrimaryButton from '../../components/primaryButton';
 import RecipientInput from '../../components/recipientInput';
-import { shortenAddress } from '../../components/shortenedAddress';
-import { supabase } from '../api/supabase';
 
-const ClaimCard: NextPage = (props: any) => {
+const Claim: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const [card, setCard] = useState<any>();
@@ -44,17 +41,6 @@ const ClaimCard: NextPage = (props: any) => {
 
   return (
     <div className="w-80 flex flex-col">
-      <Head>
-        <title>A Holiday Card from Pearl</title>
-        <meta name="description" content="Send shoutouts to teammates and colleagues as digital collectibles." />
-        {/*<meta key="image" property="og:image" content={props.category.image_url} />*/}
-
-        <meta name="twitter:title" content="A Holiday Card from Pearl" />
-        <meta name="twitter:description" content="Send shoutouts to teammates and colleagues as digital collectibles." />
-        <meta name="twitter:card" content="summary" />
-        {/*<meta name="twitter:image" content={props.category.image_url} />*/}
-      </Head>
-
       {!card && <>
         <div className="flex flex-col min-h-screen items-center justify-center">
           <LargeSpinner />
@@ -92,27 +78,4 @@ const ClaimCard: NextPage = (props: any) => {
   )
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { data, error } = await supabase
-    .rpc('get_snaps_with_sender', { snaps_id: context.query.id });
-  const props: Record<string, any> = {};
-  if (error || !data || data.length === 0) {
-    return { props };
-  }
-
-  const snaps = data[0];
-  props.snaps = snaps;
-  if (snaps.sender_wallet_address) {
-    props.sender = (await shortenAddress(snaps.sender_wallet_address));
-  }
-
-  if (snaps.recipient_wallet_address) {
-    props.recipient = (await shortenAddress(snaps.recipient_wallet_address));
-  }
-
-  const isSafari = /^((?!chrome|android).)*safari/i.test(context.req.headers['user-agent']!);
-  props.isSafari = isSafari;
-  return { props };
-}
-
-export default ClaimCard;
+export default Claim;
