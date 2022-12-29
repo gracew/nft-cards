@@ -9,29 +9,14 @@ const Claim: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const [card, setCard] = useState<any>();
-  const [minting, setMinting] = useState(false);
 
   useEffect(() => {
-    fetch('/api/cards/' + id)
-      .then(res => res.json())
-      .then(setCard);
-  });
-
-  async function mintNFT() {
-    setMinting(true);
-    fetch('/api/mint', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ id }),
-    })
-      .then(res => res.json())
-      .then(setCard)
-      .finally(() => {
-        setMinting(false);
-      });
-  }
+    if (id) {
+      fetch('/api/cards/' + id)
+        .then(res => res.json())
+        .then(setCard);
+    }
+  }, [id]);
 
   function getOpenSeaUrl() {
     return process.env.NEXT_PUBLIC_NETWORK === "ethereum"
@@ -40,40 +25,27 @@ const Claim: NextPage = () => {
   }
 
   return (
-    <div className="w-80 flex flex-col">
-      {!card && <>
-        <div className="flex flex-col min-h-screen items-center justify-center">
-          <LargeSpinner />
-        </div>
-      </>}
-      {card && <>
-        {/*<img src={props.category.image_url} alt="card image" />*/}
-        <div className="p-5">
+    <div className="w-96 flex flex-col">
+      <div className="flex flex-col min-h-screen items-center justify-center">
+        {!card && <LargeSpinner />}
+        {card && <>
+          <img src="/card.png" alt="Happy Holidays from Pearl" className="my-5" />
           <p className="mb-2 font-normal">{card.note}</p>
-        </div>
 
-        {!card.minted_at
-          ?
-          <>
-          <RecipientInput />
+          {!card.minted_at
+            ?
+            <RecipientInput id={id as string} />
+            :
             <PrimaryButton
               className="mt-3"
-              onClick={mintNFT}
-              text="Claim"
-              loading={minting}
+              onClick={() => window.open(getOpenSeaUrl(), '_blank')}
+              target="_blank"
+              text="View on OpenSea"
             />
-          </>
-          :
-          <PrimaryButton
-            className="mt-3"
-            onClick={() => window.open(getOpenSeaUrl(), '_blank')}
-            target="_blank"
-            text="View on OpenSea"
-          />
-        }
+          }
 
-        This won't cost you any transaction fees.
-      </>}
+        </>}
+      </div>
     </div>
   )
 }
