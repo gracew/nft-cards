@@ -1,13 +1,13 @@
 import sendgrid from '@sendgrid/mail';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { supabase } from './supabase';
+import { supabase } from '../supabase';
 
 sendgrid.setApiKey(process.env.SENDGRID_API_KEY!);
 
 export async function sendEmail(card: any) {
   const host = process.env.NEXT_PUBLIC_HOST || "http://localhost:3000";
   const msg = {
-    templateId: "d-5aff4fd54154455c8afddef351c648d9",
+    templateId: "d-410a89e9503645fdb17f593faa21e98a",
     from: {
       name: "Pearl",
       email: "gm@trypearl.xyz",
@@ -18,19 +18,11 @@ export async function sendEmail(card: any) {
       }
     ],
     dynamicTemplateData: {
-      snaps_url: `${host}/snaps/${card.id}`,
+      claim_url: `${host}/claim/${card.id}`,
     }
   }
   // TODO(gracew): make this idempotent
   await sendgrid.send(msg);
-}
-
-
-// don't process the body - formidable will handle that
-export const config = {
-  api: {
-    bodyParser: false
-  }
 }
 
 export default async function handler(
@@ -39,7 +31,7 @@ export default async function handler(
 ) {
     const { recipientEmail, note } = req.body;
     const insertCardRes = await supabase
-      .from("snaps")
+      .from("cards")
       .insert([{
         recipient_email: recipientEmail,
         note,

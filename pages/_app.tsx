@@ -5,7 +5,7 @@ import '../styles/globals.css';
 function MyApp({ Component, pageProps }: AppProps) {
   return <div>
     <Head>
-      <title>Holiday Cards from Pearl</title>
+      <title>Happy Holidays from Pearl</title>
       <meta name="description" content="Thank you for being a part of Pearl in 2022!" />
       {/*<meta key="image" property="og:image" content={props.category.image_url} />*/}
       <link rel="icon" href="/pearl32.png" />
