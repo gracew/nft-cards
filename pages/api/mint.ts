@@ -54,7 +54,7 @@ export async function mint(id: string, recipientAddress: string) {
       created_transaction: true,
     })
     .eq('id', card.id);
-  const transaction = await contract.mintToCaller(recipientAddress, url, { gasPrice: ethers.utils.parseUnits('40', 'gwei'), gasLimit: 200_000 });
+  const transaction = await contract.mintToCaller(recipientAddress, url, { gasPrice: ethers.utils.parseUnits('35', 'gwei'), gasLimit: 200_000 });
   const tx = await transaction.wait();
   const event = tx.events[0];
   console.log("transaction event: ", event);
