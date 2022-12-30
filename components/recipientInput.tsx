@@ -7,6 +7,7 @@ export const MAINNET_PROVIDER = new ethers.providers.InfuraProvider("homestead",
 
 const RecipientInput = ({ id }: { id: string }) => {
   const [recipientAddress, setRecipientAddress] = useState("");
+  const [resolvedAddress, setResolvedAddress] = useState<string>("");
   const [validAddress, setValidAddress] = useState<boolean | undefined>();
   const [minting, setMinting] = useState(false);
 
@@ -20,7 +21,7 @@ const RecipientInput = ({ id }: { id: string }) => {
         } else {
           const resolved = await MAINNET_PROVIDER.resolveName(recipientAddress);
           if (resolved) {
-            //setResolvedAddress(resolved);
+            setResolvedAddress(resolved);
             setValidAddress(true);
           } else {
             setValidAddress(false);
@@ -39,7 +40,7 @@ const RecipientInput = ({ id }: { id: string }) => {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ id }),
+      body: JSON.stringify({ id, recipientAddress: resolvedAddress }),
     })
       .then(res => res.json())
       //.then(setCard)
