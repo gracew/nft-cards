@@ -55,9 +55,9 @@ const RecipientInput = ({ id, onUpdate }: RecipientInputProps) => {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full flex flex-col items-center">
       <label className="block text-sm font-medium text-gray-400 mt-6">To claim this card as an NFT, enter your Ethereum address or ENS. This won&apos;t cost you any transaction fees.</label>
-      <div className="my-3 relative rounded-md shadow-sm">
+      <div className="w-full my-2 relative rounded-md shadow-sm">
         <input
           type="text"
           name="ethaddress"
@@ -69,7 +69,7 @@ const RecipientInput = ({ id, onUpdate }: RecipientInputProps) => {
         />
       </div>
       <PrimaryButton
-        className="w-full"
+        className="px-10"
         onClick={mintNFT}
         text="Claim"
         loading={minting}

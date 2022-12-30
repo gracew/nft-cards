@@ -36,12 +36,14 @@ const Claim: NextPage = () => {
             ?
             <RecipientInput id={id as string} onUpdate={setCard} />
             :
-            <PrimaryButton
-              className="mt-3"
-              onClick={() => window.open(getOpenSeaUrl(), '_blank')}
-              target="_blank"
-              text="View on OpenSea"
-            />
+            <div>
+              <PrimaryButton
+                className="mt-3"
+                onClick={() => window.open(getOpenSeaUrl(), '_blank')}
+                target="_blank"
+                text="View on OpenSea"
+              />
+            </div>
           }
 
         </>}
