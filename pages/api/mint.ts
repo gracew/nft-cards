@@ -5,7 +5,13 @@ import ERC721NFT from "../../ERC721NFT.json";
 import { supabase } from "./supabase";
 
 // @ts-ignore
-const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
+const client = ipfsHttpClient({
+  host: "ipfs.infura.io",
+  port: 5001,
+  protocol: 'https',
+  headers: {
+    authorization: 'Basic ' + Buffer.from('2Jc3Hc1v2vJtAVQSbdpUBJxyrWO:' + process.env.INFURA_IPFS_SECRET).toString('base64'), }
+});
 
 const INFURA_ID = "a71874bbcb6a450398f24a7bbd436eda";
 const provider = new ethers.providers.InfuraProvider(process.env.NEXT_PUBLIC_NETWORK || "goerli", INFURA_ID)
@@ -43,7 +49,7 @@ export async function mint(id: string, recipientAddress: string) {
     return card;
   }
   await supabase
-    .from("card")
+    .from("cards")
     .update({
       created_transaction: true,
     })
@@ -56,7 +62,7 @@ export async function mint(id: string, recipientAddress: string) {
   console.log("token id: ", tokenId);
 
   const { data: updateData, error: updateError } = await supabase
-    .from("card")
+    .from("cards")
     .update({
       minted_at: new Date().toISOString(),
       minted_token_id: tokenId,
