@@ -19,13 +19,13 @@ const Claim: NextPage = () => {
   }, [id]);
 
   function getOpenSeaUrl() {
-    return process.env.NEXT_PUBLIC_NETWORK === "ethereum"
+    return process.env.NEXT_PUBLIC_NETWORK === "homestead"
       ? `https://opensea.io/assets/ethereum/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}/${card.minted_token_id}`
       : `https://testnets.opensea.io/assets/goerli/${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}/${card.minted_token_id}`
   }
 
   return (
-    <div className="w-96 flex flex-col">
+    <div className="w-80 md:w-96 flex flex-col">
       <div className="flex flex-col min-h-screen items-center justify-center">
         {!card && <LargeSpinner />}
         {card && <>
