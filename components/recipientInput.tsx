@@ -50,7 +50,7 @@ const RecipientInput = ({ id }: { id: string }) => {
 
   return (
     <div className="w-full">
-      <label className="block text-sm font-medium text-gray-400 mt-6">To claim this card as an NFT, enter your Ethereum address or ENS. This won't cost you any transaction fees.</label>
+      <label className="block text-sm font-medium text-gray-400 mt-6">To claim this card as an NFT, enter your Ethereum address or ENS. This won&apos;t cost you any transaction fees.</label>
       <div className="my-3 relative rounded-md shadow-sm">
         <input
           type="text"
