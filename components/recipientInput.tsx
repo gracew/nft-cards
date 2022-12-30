@@ -5,7 +5,12 @@ import PrimaryButton from "./primaryButton";
 const INFURA_ID = "a71874bbcb6a450398f24a7bbd436eda";
 export const MAINNET_PROVIDER = new ethers.providers.InfuraProvider("homestead", INFURA_ID);
 
-const RecipientInput = ({ id }: { id: string }) => {
+interface RecipientInputProps {
+  id: string;
+  onUpdate: (card: any) => void;
+}
+
+const RecipientInput = ({ id, onUpdate }: RecipientInputProps) => {
   const [recipientAddress, setRecipientAddress] = useState("");
   const [resolvedAddress, setResolvedAddress] = useState<string>("");
   const [validAddress, setValidAddress] = useState<boolean | undefined>();
@@ -43,7 +48,7 @@ const RecipientInput = ({ id }: { id: string }) => {
       body: JSON.stringify({ id, recipientAddress: resolvedAddress }),
     })
       .then(res => res.json())
-      //.then(setCard)
+      .then(onUpdate)
       .finally(() => {
         setMinting(false);
       });

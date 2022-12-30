@@ -34,7 +34,7 @@ const Claim: NextPage = () => {
 
           {!card.minted_at
             ?
-            <RecipientInput id={id as string} />
+            <RecipientInput id={id as string} onUpdate={setCard} />
             :
             <PrimaryButton
               className="mt-3"
